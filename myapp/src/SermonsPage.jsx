@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "./Navbar";
 
-// ── Design tokens (same as AboutPage / ContactPage) ───────────────────────
+// ── Design tokens ─────────────────────────────────────────────────────────
 const T = {
   navy:      "#0f1f3d",
   navyMid:   "#1a3260",
@@ -21,6 +21,18 @@ const font = {
   display: "'Playfair Display', Georgia, serif",
   body:    "'Lato', 'Helvetica Neue', sans-serif",
 };
+
+// ── File type config ──────────────────────────────────────────────────────
+const FILE_META = {
+  pdf:  { label: "PDF",  icon: "📄", color: "#c0392b", bg: "#fdecea" },
+  docx: { label: "Word", icon: "📝", color: "#1a5276", bg: "#eaf0fb" },
+  doc:  { label: "Word", icon: "📝", color: "#1a5276", bg: "#eaf0fb" },
+};
+
+function fileMeta(filename = "") {
+  const ext = filename.split(".").pop().toLowerCase();
+  return FILE_META[ext] || { label: ext.toUpperCase(), icon: "📎", color: T.textMid, bg: T.cream };
+}
 
 // ── Google Fonts ──────────────────────────────────────────────────────────
 function useFonts() {
@@ -59,76 +71,93 @@ function reveal(visible, extra = {}) {
 }
 
 // ── Sermon data ───────────────────────────────────────────────────────────
+// Replace `file` with the actual path to your uploaded sermon file, e.g. "/sermons/walking-by-faith.pdf"
 const SERIES = [
   {
     id: 1,
-    series:   "Walking by Faith",
-    speaker:  "Pastor John Mutua",
-    date:     "18 May 2025",
-    scripture:"Hebrews 11:1-6",
-    duration: "47 min",
-    tag:      "Faith",
-    featured: true,
-    desc:     "An exploration of what it truly means to walk by faith and not by sight, drawing from the great cloud of witnesses in Hebrews 11.",
+    series:    "Walking by Faith",
+    speaker:   "Pastor John Mutua",
+    date:      "18 May 2025",
+    scripture: "Hebrews 11:1-6",
+    tag:       "Faith",
+    featured:  true,
+    desc:      "An exploration of what it truly means to walk by faith and not by sight, drawing from the great cloud of witnesses in Hebrews 11.",
+    file:      "/sermons/walking-by-faith.pdf",
   },
   {
     id: 2,
-    series:   "The Power of Prayer",
-    speaker:  "Pastor John Mutua",
-    date:     "11 May 2025",
-    scripture:"James 5:13-18",
-    duration: "39 min",
-    tag:      "Prayer",
-    featured: false,
-    desc:     "Unpacking the promise that the prayer of a righteous person is powerful and effective, and what that means for our daily walk.",
+    series:    "The Power of Prayer",
+    speaker:   "Pastor John Mutua",
+    date:      "11 May 2025",
+    scripture: "James 5:13-18",
+    tag:       "Prayer",
+    featured:  false,
+    desc:      "Unpacking the promise that the prayer of a righteous person is powerful and effective, and what that means for our daily walk.",
+    file:      "/sermons/power-of-prayer.docx",
   },
   {
     id: 3,
-    series:   "Grace Sufficient",
-    speaker:  "Evangelist Mary Wambua",
-    date:     "4 May 2025",
-    scripture:"2 Corinthians 12:9",
-    duration: "41 min",
-    tag:      "Grace",
-    featured: false,
-    desc:     "A testimony-rich message on how God's grace is made perfect in our weakness, and why we can boast in our struggles.",
+    series:    "Grace Sufficient",
+    speaker:   "Evangelist Mary Wambua",
+    date:      "4 May 2025",
+    scripture: "2 Corinthians 12:9",
+    tag:       "Grace",
+    featured:  false,
+    desc:      "A testimony-rich message on how God's grace is made perfect in our weakness, and why we can boast in our struggles.",
+    file:      "/sermons/grace-sufficient.pdf",
   },
   {
     id: 4,
-    series:   "Rooted in the Word",
-    speaker:  "Pastor John Mutua",
-    date:     "27 Apr 2025",
-    scripture:"Psalm 1:1-3",
-    duration: "44 min",
-    tag:      "Scripture",
-    featured: false,
-    desc:     "What it means to meditate on God's Word day and night, and how that transforms every area of our lives.",
+    series:    "Rooted in the Word",
+    speaker:   "Pastor John Mutua",
+    date:      "27 Apr 2025",
+    scripture: "Psalm 1:1-3",
+    tag:       "Scripture",
+    featured:  false,
+    desc:      "What it means to meditate on God's Word day and night, and how that transforms every area of our lives.",
+    file:      "/sermons/rooted-in-the-word.pdf",
   },
   {
     id: 5,
-    series:   "Love One Another",
-    speaker:  "Deacon Samuel Kilonzo",
-    date:     "20 Apr 2025",
-    scripture:"John 13:34-35",
-    duration: "36 min",
-    tag:      "Community",
-    featured: false,
-    desc:     "Jesus' command to love one another as He loved us — exploring what sacrificial, community-centred love looks like in practice.",
+    series:    "Love One Another",
+    speaker:   "Deacon Samuel Kilonzo",
+    date:      "20 Apr 2025",
+    scripture: "John 13:34-35",
+    tag:       "Community",
+    featured:  false,
+    desc:      "Jesus' command to love one another as He loved us — exploring what sacrificial, community-centred love looks like in practice.",
+    file:      "/sermons/love-one-another.docx",
   },
   {
     id: 6,
-    series:   "The Generous Life",
-    speaker:  "Pastor John Mutua",
-    date:     "13 Apr 2025",
-    scripture:"Proverbs 11:24-25",
-    duration: "42 min",
-    tag:      "Generosity",
-    featured: false,
-    desc:     "Why generosity is not just a financial principle but a posture of the heart that opens us up to God's abundance.",
+    series:    "The Generous Life",
+    speaker:   "Pastor John Mutua",
+    date:      "13 Apr 2025",
+    scripture: "Proverbs 11:24-25",
+    tag:       "Generosity",
+    featured:  false,
+    desc:      "Why generosity is not just a financial principle but a posture of the heart that opens us up to God's abundance.",
+    file:      "/sermons/the-generous-life.pdf",
   },
 ];
 
 const ALL_TAGS = ["All", ...Array.from(new Set(SERIES.map((s) => s.tag)))];
+
+// ── File type badge ───────────────────────────────────────────────────────
+function FileBadge({ filename }) {
+  const meta = fileMeta(filename);
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: "4px",
+      fontFamily: font.body, fontSize: "11px", fontWeight: "700",
+      letterSpacing: "0.5px", textTransform: "uppercase",
+      color: meta.color, background: meta.bg,
+      padding: "3px 10px", borderRadius: "20px",
+    }}>
+      {meta.icon} {meta.label}
+    </span>
+  );
+}
 
 // ── Sermon card ───────────────────────────────────────────────────────────
 function SermonCard({ sermon, index, featured }) {
@@ -141,6 +170,7 @@ function SermonCard({ sermon, index, featured }) {
         <div style={styles.featuredBadgeRow}>
           <span style={styles.featuredBadge}>✦ Latest Sermon</span>
           <span style={styles.tagPill}>{sermon.tag}</span>
+          <FileBadge filename={sermon.file} />
         </div>
         <h2 style={styles.featuredTitle}>{sermon.series}</h2>
         <p style={styles.featuredDesc}>{sermon.desc}</p>
@@ -148,11 +178,14 @@ function SermonCard({ sermon, index, featured }) {
           <span>📖 {sermon.scripture}</span>
           <span>🎙 {sermon.speaker}</span>
           <span>📅 {sermon.date}</span>
-          <span>⏱ {sermon.duration}</span>
         </div>
-        <button style={styles.playBtnPrimary}>
-          ▶ &nbsp;Listen Now
-        </button>
+        <a
+          href={sermon.file}
+          download
+          style={styles.downloadBtnPrimary}
+        >
+          ⬇ &nbsp;Download Sermon
+        </a>
       </div>
     );
   }
@@ -171,7 +204,7 @@ function SermonCard({ sermon, index, featured }) {
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
         <span style={styles.tagPill}>{sermon.tag}</span>
-        <span style={styles.duration}>⏱ {sermon.duration}</span>
+        <FileBadge filename={sermon.file} />
       </div>
       <h3 style={styles.sermonTitle}>{sermon.series}</h3>
       <p style={styles.sermonDesc}>{sermon.desc}</p>
@@ -180,8 +213,10 @@ function SermonCard({ sermon, index, featured }) {
         <span>🎙 {sermon.speaker}</span>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.25rem" }}>
-        <span style={styles.sermonDate}>{sermon.date}</span>
-        <button style={styles.playBtnSmall}>▶ Listen</button>
+        <span style={styles.sermonDate}>📅 {sermon.date}</span>
+        <a href={sermon.file} download style={styles.downloadBtnSmall}>
+          ⬇ Download
+        </a>
       </div>
     </div>
   );
@@ -213,7 +248,7 @@ export default function SermonsPage() {
             <div style={styles.heroDivider} />
             <p style={styles.heroSub}>
               Biblical teaching to equip, encourage, and grow your faith.<br />
-              Listen to messages from our Sunday services and midweek fellowship.
+              Download messages from our Sunday services and midweek fellowship.
             </p>
           </div>
         </div>
@@ -295,7 +330,6 @@ export default function SermonsPage() {
 const styles = {
   page: { background: T.white, fontFamily: font.body, color: T.textDark, overflowX: "hidden" },
 
-  // Hero
   heroWrap: {
     position: "relative", minHeight: "420px",
     background: `linear-gradient(135deg, ${T.navy} 0%, ${T.navyMid} 100%)`,
@@ -311,84 +345,52 @@ const styles = {
     position: "relative", zIndex: 1, padding: "5rem 2rem",
     width: "100%", display: "flex", justifyContent: "center",
   },
-  heroCross: {
-    fontFamily: font.display, fontSize: "48px", color: T.gold,
-    opacity: 0.3, marginBottom: "1rem",
-  },
-  heroEyebrow: {
-    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
-    letterSpacing: "4px", textTransform: "uppercase", color: T.goldLight,
-    marginBottom: "1rem",
-  },
-  heroH1: {
-    fontFamily: font.display, fontSize: "clamp(36px, 6vw, 64px)",
-    fontWeight: "800", color: T.white, margin: "0 0 1.5rem", lineHeight: 1.1,
-  },
-  heroDivider: {
-    width: "48px", height: "3px", background: T.gold,
-    borderRadius: "2px", margin: "0 auto 1.5rem",
-  },
-  heroSub: {
-    fontFamily: font.body, fontSize: "clamp(17px, 2vw, 20px)",
-    fontWeight: "300", color: "rgba(255,255,255,0.78)",
-    lineHeight: "1.8", margin: 0,
-  },
+  heroCross:   { fontFamily: font.display, fontSize: "48px", color: T.gold, opacity: 0.3, marginBottom: "1rem" },
+  heroEyebrow: { fontFamily: font.body, fontSize: "12px", fontWeight: "700", letterSpacing: "4px", textTransform: "uppercase", color: T.goldLight, marginBottom: "1rem" },
+  heroH1:      { fontFamily: font.display, fontSize: "clamp(36px, 6vw, 64px)", fontWeight: "800", color: T.white, margin: "0 0 1.5rem", lineHeight: 1.1 },
+  heroDivider: { width: "48px", height: "3px", background: T.gold, borderRadius: "2px", margin: "0 auto 1.5rem" },
+  heroSub:     { fontFamily: font.body, fontSize: "clamp(17px, 2vw, 20px)", fontWeight: "300", color: "rgba(255,255,255,0.78)", lineHeight: "1.8", margin: 0 },
 
-  // Sections
   section:      { padding: "5rem 1.5rem", background: T.white },
   container:    { maxWidth: "1000px", margin: "0 auto" },
-  sectionLabel: {
-    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
-    letterSpacing: "3px", textTransform: "uppercase",
-    color: T.gold, marginBottom: "0.75rem",
-  },
-  sectionTitle: {
-    fontFamily: font.display, fontSize: "clamp(26px, 4vw, 42px)",
-    fontWeight: "700", color: T.navy, margin: "0 0 1.25rem", lineHeight: 1.2,
-  },
-  divider: {
-    width: "48px", height: "3px", background: T.gold,
-    borderRadius: "2px", marginBottom: "2.5rem",
-  },
+  sectionLabel: { fontFamily: font.body, fontSize: "12px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: T.gold, marginBottom: "0.75rem" },
+  sectionTitle: { fontFamily: font.display, fontSize: "clamp(26px, 4vw, 42px)", fontWeight: "700", color: T.navy, margin: "0 0 1.25rem", lineHeight: 1.2 },
+  divider:      { width: "48px", height: "3px", background: T.gold, borderRadius: "2px", marginBottom: "2.5rem" },
 
   // Featured card
   featuredCard: {
-    padding: "2.5rem",
-    borderRadius: "8px",
+    padding: "2.5rem", borderRadius: "8px",
     background: `linear-gradient(135deg, ${T.navy} 0%, ${T.navyMid} 100%)`,
-    border: `1px solid rgba(200,146,42,0.25)`,
-    position: "relative",
-    overflow: "hidden",
+    border: "1px solid rgba(200,146,42,0.25)",
   },
-  featuredBadgeRow: {
-    display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.25rem",
-  },
+  featuredBadgeRow: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.25rem", flexWrap: "wrap" },
   featuredBadge: {
     fontFamily: font.body, fontSize: "11px", fontWeight: "700",
     letterSpacing: "1.5px", textTransform: "uppercase",
     color: T.gold, background: "rgba(200,146,42,0.12)",
     padding: "4px 12px", borderRadius: "20px",
-    border: `1px solid rgba(200,146,42,0.3)`,
+    border: "1px solid rgba(200,146,42,0.3)",
   },
-  featuredTitle: {
-    fontFamily: font.display, fontSize: "clamp(24px, 4vw, 38px)",
-    fontWeight: "800", color: T.white, margin: "0 0 1rem", lineHeight: 1.2,
-  },
-  featuredDesc: {
-    fontFamily: font.body, fontSize: "16px", lineHeight: "1.85",
-    color: "rgba(255,255,255,0.72)", margin: "0 0 1.5rem", maxWidth: "640px",
-  },
-  featuredMeta: {
-    display: "flex", flexWrap: "wrap", gap: "1rem",
-    fontFamily: font.body, fontSize: "13px",
-    color: "rgba(255,255,255,0.55)", marginBottom: "2rem",
-  },
-  playBtnPrimary: {
+  featuredTitle: { fontFamily: font.display, fontSize: "clamp(24px, 4vw, 38px)", fontWeight: "800", color: T.white, margin: "0 0 1rem", lineHeight: 1.2 },
+  featuredDesc:  { fontFamily: font.body, fontSize: "16px", lineHeight: "1.85", color: "rgba(255,255,255,0.72)", margin: "0 0 1.5rem", maxWidth: "640px" },
+  featuredMeta:  { display: "flex", flexWrap: "wrap", gap: "1rem", fontFamily: font.body, fontSize: "13px", color: "rgba(255,255,255,0.55)", marginBottom: "2rem" },
+
+  // Download buttons
+  downloadBtnPrimary: {
+    display: "inline-block",
     padding: "12px 32px",
     background: T.gold, color: T.white,
     border: "none", borderRadius: "6px",
     fontFamily: font.body, fontSize: "14px", fontWeight: "700",
-    letterSpacing: "1px", cursor: "pointer",
+    letterSpacing: "1px", cursor: "pointer", textDecoration: "none",
+  },
+  downloadBtnSmall: {
+    display: "inline-block",
+    padding: "7px 18px",
+    background: T.navy, color: T.white,
+    border: "none", borderRadius: "6px",
+    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
+    letterSpacing: "0.5px", cursor: "pointer", textDecoration: "none",
   },
 
   // Tag pill
@@ -400,95 +402,32 @@ const styles = {
   },
 
   // Filter
-  filterRow: {
-    display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "2rem",
-  },
+  filterRow: { display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "2rem" },
   filterBtn: {
     padding: "7px 18px", borderRadius: "20px",
     fontFamily: font.body, fontSize: "13px", fontWeight: "700",
-    cursor: "pointer", transition: "all 0.2s",
-    letterSpacing: "0.5px",
+    cursor: "pointer", transition: "all 0.2s", letterSpacing: "0.5px",
   },
 
-  // Sermon grid
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "1.5rem",
-  },
-
-  // Sermon card
+  // Sermon grid & cards
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" },
   sermonCard: {
-    padding: "1.75rem",
-    borderRadius: "8px",
-    background: T.white,
-    border: `1px solid ${T.border}`,
+    padding: "1.75rem", borderRadius: "8px",
+    background: T.white, border: `1px solid ${T.border}`,
     transition: "box-shadow 0.25s, transform 0.25s",
-    cursor: "default",
   },
-  sermonTitle: {
-    fontFamily: font.display, fontSize: "18px", fontWeight: "700",
-    color: T.navy, margin: "0 0 0.5rem", lineHeight: 1.3,
-  },
-  sermonDesc: {
-    fontFamily: font.body, fontSize: "14px", lineHeight: "1.75",
-    color: T.textMid, margin: "0 0 1rem",
-  },
-  sermonMeta: {
-    display: "flex", flexDirection: "column", gap: "4px",
-    fontFamily: font.body, fontSize: "12px", color: T.textLight,
-  },
-  sermonDate: {
-    fontFamily: font.body, fontSize: "12px", color: T.textLight,
-  },
-  duration: {
-    fontFamily: font.body, fontSize: "12px", color: T.textLight,
-  },
-  playBtnSmall: {
-    padding: "7px 18px",
-    background: T.navy, color: T.white,
-    border: "none", borderRadius: "6px",
-    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
-    letterSpacing: "0.5px", cursor: "pointer",
-  },
+  sermonTitle: { fontFamily: font.display, fontSize: "18px", fontWeight: "700", color: T.navy, margin: "0 0 0.5rem", lineHeight: 1.3 },
+  sermonDesc:  { fontFamily: font.body, fontSize: "14px", lineHeight: "1.75", color: T.textMid, margin: "0 0 1rem" },
+  sermonMeta:  { display: "flex", flexDirection: "column", gap: "4px", fontFamily: font.body, fontSize: "12px", color: T.textLight },
+  sermonDate:  { fontFamily: font.body, fontSize: "12px", color: T.textLight },
 
   // CTA band
-  ctaBand: {
-    padding: "5rem 1.5rem",
-    background: `linear-gradient(135deg, ${T.gold} 0%, #a0701a 100%)`,
-  },
-  ctaEyebrow: {
-    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
-    letterSpacing: "3px", textTransform: "uppercase",
-    color: "rgba(255,255,255,0.75)", marginBottom: "0.75rem",
-  },
-  ctaTitle: {
-    fontFamily: font.display, fontSize: "clamp(28px, 4vw, 44px)",
-    fontWeight: "800", color: T.white, margin: "0 0 0.75rem",
-  },
-  ctaText: {
-    fontFamily: font.body, fontSize: "16px",
-    color: "rgba(255,255,255,0.82)", margin: 0,
-  },
-  ctaBtnPrimary: {
-    padding: "14px 36px", background: T.white,
-    color: T.navy, borderRadius: "4px", textDecoration: "none",
-    fontFamily: font.body, fontWeight: "700", fontSize: "14px",
-    letterSpacing: "1px", textTransform: "uppercase",
-  },
-  ctaBtnOutline: {
-    padding: "14px 36px", background: "transparent",
-    color: T.white, border: "1px solid rgba(255,255,255,0.55)",
-    borderRadius: "4px", textDecoration: "none",
-    fontFamily: font.body, fontWeight: "700", fontSize: "14px",
-    letterSpacing: "1px", textTransform: "uppercase",
-  },
+  ctaBand:       { padding: "5rem 1.5rem", background: `linear-gradient(135deg, ${T.gold} 0%, #a0701a 100%)` },
+  ctaEyebrow:    { fontFamily: font.body, fontSize: "12px", fontWeight: "700", letterSpacing: "3px", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: "0.75rem" },
+  ctaTitle:      { fontFamily: font.display, fontSize: "clamp(28px, 4vw, 44px)", fontWeight: "800", color: T.white, margin: "0 0 0.75rem" },
+  ctaText:       { fontFamily: font.body, fontSize: "16px", color: "rgba(255,255,255,0.82)", margin: 0 },
+  ctaBtnPrimary: { padding: "14px 36px", background: T.white, color: T.navy, borderRadius: "4px", textDecoration: "none", fontFamily: font.body, fontWeight: "700", fontSize: "14px", letterSpacing: "1px", textTransform: "uppercase" },
+  ctaBtnOutline: { padding: "14px 36px", background: "transparent", color: T.white, border: "1px solid rgba(255,255,255,0.55)", borderRadius: "4px", textDecoration: "none", fontFamily: font.body, fontWeight: "700", fontSize: "14px", letterSpacing: "1px", textTransform: "uppercase" },
 
-  // Footer
-  footer: {
-    textAlign: "center", padding: "1.5rem",
-    background: "#070e1e",
-    fontFamily: font.body, fontSize: "13px",
-    color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px",
-  },
+  footer: { textAlign: "center", padding: "1.5rem", background: "#070e1e", fontFamily: font.body, fontSize: "13px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px" },
 };

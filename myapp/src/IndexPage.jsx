@@ -62,7 +62,7 @@ function useReveal(delay = 0) {
   useEffect(() => {
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setTimeout(() => setVisible(true), delay); obs.disconnect(); } },
-      { threshold: 0.12 }
+      { threshold: 0.05, rootMargin: "0px 0px -40px 0px" }
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
@@ -134,6 +134,128 @@ function Carousel() {
   );
 }
 
+// ── Upcoming events data ──────────────────────────────────────────────────
+const upcomingEvents = [
+  { date: "Jun 1",  day: "Sun",  title: "Kenyatta Day Special Service",    category: "Worship",    desc: "A special thanksgiving service honouring our nation and God's faithfulness over Kenya.",      icon: "✝" },
+  { date: "Jun 7",  day: "Sat",  title: "Youth Interdenominational Rally", category: "Youth",      desc: "Youth from across the region come together for worship, testimonies, and discipleship talks.", icon: "🔥" },
+  { date: "Jun 14", day: "Sat",  title: "Church Fundraising Drive",        category: "Fundraiser", desc: "Support the building fund through contributions, food stalls, and a talent showcase evening.", icon: "🙌" },
+  { date: "Jun 22", day: "Sun",  title: "Mothers' Fellowship Celebration", category: "Fellowship", desc: "Honouring the women of AIC Mulutu with a special programme, lunch, and testimonies.",          icon: "💛" },
+  { date: "Jul 5",  day: "Sat",  title: "Community Outreach Day",          category: "Outreach",   desc: "Join us as we visit Mulutu estates with food packages, prayers, and the Word of God.",       icon: "🌍" },
+  { date: "Jul 13", day: "Sun",  title: "Annual Choir Competition",        category: "Music",      desc: "Choirs from sister AIC churches compete in a spirit-filled day of praise and worship.",       icon: "🎵" },
+];
+
+const categoryColors = {
+  Worship:    { bg: "#1a3260", text: "#e8b04a" },
+  Youth:      { bg: "#c8922a", text: "#fff" },
+  Fundraiser: { bg: "#0f4c2a", text: "#7dda9a" },
+  Fellowship: { bg: "#4a1a5e", text: "#e8aaf8" },
+  Outreach:   { bg: "#0f3a4c", text: "#7fd4f8" },
+  Music:      { bg: "#4c2a0f", text: "#f8c87f" },
+};
+
+// ── Scrolling ticker strip ────────────────────────────────────────────────
+function useTickerCSS() {
+  useEffect(() => {
+    if (document.getElementById("aic-ticker-css")) return;
+    const s = document.createElement("style");
+    s.id = "aic-ticker-css";
+    s.textContent = `
+      @keyframes ticker-scroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .ticker-inner-anim {
+        display: flex;
+        animation: ticker-scroll 42s linear infinite;
+        will-change: transform;
+        white-space: nowrap;
+      }
+      .ticker-inner-anim:hover { animation-play-state: paused; }
+    `;
+    document.head.appendChild(s);
+  }, []);
+}
+
+function EventsTicker() {
+  useTickerCSS();
+  const items = upcomingEvents.map(e => `${e.icon}  ${e.date} · ${e.title}`);
+  const doubled = [...items, ...items];
+  return (
+    <div style={styles.tickerWrap}>
+      <div style={styles.tickerLabel}>
+        <span style={{ fontSize: "13px", marginRight: "6px" }}>📅</span> UPCOMING
+      </div>
+      <div style={styles.tickerTrack}>
+        <div className="ticker-inner-anim">
+          {doubled.map((item, i) => (
+            <span key={i} style={styles.tickerItem}>
+              {item}
+              <span style={styles.tickerDot}>◆</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Events cards section ──────────────────────────────────────────────────
+function EventCard({ event, delay }) {
+  const [ref, visible] = useReveal(delay);
+  const cc = categoryColors[event.category] || { bg: T.navyMid, text: T.goldLight };
+  return (
+    <div ref={ref} style={{ ...styles.eventCard, ...revealStyle(visible) }}>
+      {/* Coloured top banner */}
+      <div style={{ ...styles.eventBanner, background: cc.bg }}>
+        <span style={{ ...styles.eventBannerCat, color: cc.text }}>{event.category}</span>
+        <span style={styles.eventBannerIcon}>{event.icon}</span>
+      </div>
+
+      <div style={styles.eventCardBody}>
+        {/* Date badge */}
+        <div style={styles.eventDateRow}>
+          <div style={styles.eventDateBlock}>
+            <span style={styles.eventDateNum}>{event.date.split(" ")[1]}</span>
+            <span style={styles.eventDateMonth}>{event.date.split(" ")[0]}</span>
+          </div>
+          <span style={styles.eventDayLabel}>{event.day}</span>
+        </div>
+
+        <h4 style={styles.eventTitle}>{event.title}</h4>
+        <div style={styles.eventDivider} />
+        <p style={styles.eventDesc}>{event.desc}</p>
+
+        <div style={styles.eventFooter}>
+          <span style={styles.eventRsvp}>✝ Add to Calendar</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventsSection() {
+  const [ref, visible] = useReveal(0);
+  return (
+    <section style={styles.eventsSection}>
+      <div style={styles.container}>
+        <div ref={ref} style={revealStyle(visible)}>
+          <div style={{ ...styles.sectionLabel, color: T.goldLight }}>What's On</div>
+          <h2 style={{ ...styles.sectionTitle, color: T.white }}>Upcoming Events</h2>
+          <div style={{ ...styles.divider, background: T.gold }} />
+          <p style={styles.eventsIntro}>
+            Don't miss what God is doing in our community — mark your calendar and come as you are.
+          </p>
+        </div>
+        <div style={styles.eventsGrid}>
+          {upcomingEvents.map((e, i) => (
+            <EventCard key={e.title} event={e} delay={i * 90} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Service card ──────────────────────────────────────────────────────────
 function ServiceCard({ day, services, delay }) {
   const [ref, visible] = useReveal(delay);
@@ -180,7 +302,7 @@ export default function IndexPage() {
             <h1 style={styles.heroH1}>Welcome to<br />Church</h1>
             <p style={styles.heroSub}>Our anchor is Christ</p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginTop: "2rem" }}>
-              <Link to="/sermons" style={styles.heroBtnPrimary}>Watch Sermons</Link>
+              <Link to="/sermons" style={styles.heroBtnPrimary}>Our Sermons</Link>
               <Link to="/contact" style={styles.heroBtnOutline}>Find Us</Link>
             </div>
           </div>
@@ -190,6 +312,9 @@ export default function IndexPage() {
           <span style={styles.heroScrollText}>Scroll</span>
         </div>
       </div>
+
+      {/* ══ EVENTS TICKER ════════════════════════════════════════════════ */}
+      <EventsTicker />
 
       {/* ══ WELCOME ═══════════════════════════════════════════════════════ */}
       <section style={styles.section}>
@@ -230,6 +355,9 @@ export default function IndexPage() {
           <StatBox target={30}  suffix="+" label="Youth Involved"   delay={300} />
         </div>
       </section>
+
+      {/* ══ UPCOMING EVENTS ═══════════════════════════════════════════════ */}
+      <EventsSection />
 
       {/* ══ PASTOR ════════════════════════════════════════════════════════ */}
       <section style={{ ...styles.section, background: T.cream }}>
@@ -337,6 +465,120 @@ export default function IndexPage() {
 // ── Styles ────────────────────────────────────────────────────────────────
 const styles = {
   page: { background: T.white, fontFamily: font.body, color: T.textDark, overflowX: "hidden" },
+
+  // Ticker strip
+  tickerWrap: {
+    display: "flex", alignItems: "stretch",
+    background: T.navy, borderBottom: `2px solid ${T.gold}`,
+    overflow: "hidden", height: "42px",
+  },
+  tickerLabel: {
+    flexShrink: 0,
+    background: T.gold,
+    color: T.white,
+    fontFamily: font.body, fontSize: "11px", fontWeight: "700",
+    letterSpacing: "2px", textTransform: "uppercase",
+    display: "flex", alignItems: "center", padding: "0 18px",
+    whiteSpace: "nowrap",
+  },
+  tickerTrack: { flex: 1, overflow: "hidden", position: "relative" },
+  tickerInner: {
+    display: "flex",
+    animation: "ticker-scroll 38s linear infinite",
+    willChange: "transform",
+  },
+  tickerItem: {
+    whiteSpace: "nowrap",
+    fontFamily: font.body, fontSize: "13px", fontWeight: "400",
+    color: "rgba(255,255,255,0.82)", letterSpacing: "0.4px",
+    padding: "0 8px", lineHeight: "42px", flexShrink: 0,
+  },
+  tickerDot: {
+    color: T.gold, fontSize: "7px", margin: "0 16px",
+    verticalAlign: "middle",
+  },
+
+  // Events section
+  eventsSection: {
+    padding: "5rem 1.5rem",
+    background: `linear-gradient(160deg, ${T.navy} 0%, #0a1628 100%)`,
+  },
+  eventsIntro: {
+    fontFamily: font.body, fontSize: "17px", fontStyle: "italic",
+    color: "rgba(255,255,255,0.6)", marginBottom: "3rem", maxWidth: "580px",
+  },
+  eventsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "2rem",
+    marginTop: "0.5rem",
+  },
+  eventCard: {
+    background: "#0f1f3d",
+    border: "1px solid rgba(200,146,42,0.25)",
+    borderRadius: "14px",
+    overflow: "hidden",
+    boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    display: "flex", flexDirection: "column",
+  },
+  eventBanner: {
+    padding: "1.5rem 1.75rem",
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+    minHeight: "90px",
+  },
+  eventBannerCat: {
+    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
+    letterSpacing: "2.5px", textTransform: "uppercase",
+    background: "rgba(0,0,0,0.2)", padding: "5px 14px",
+    borderRadius: "20px",
+  },
+  eventBannerIcon: { fontSize: "42px", lineHeight: 1 },
+  eventCardBody: {
+    padding: "1.75rem 1.75rem 1.5rem",
+    flex: 1, display: "flex", flexDirection: "column",
+  },
+  eventDateRow: {
+    display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.25rem",
+  },
+  eventDateBlock: {
+    display: "flex", flexDirection: "column", alignItems: "center",
+    background: T.gold, borderRadius: "10px", padding: "8px 14px",
+    lineHeight: 1, minWidth: "52px",
+  },
+  eventDateNum: {
+    fontFamily: font.display, fontSize: "26px", fontWeight: "800", color: T.white,
+  },
+  eventDateMonth: {
+    fontFamily: font.body, fontSize: "10px", fontWeight: "700",
+    color: "rgba(255,255,255,0.8)", letterSpacing: "1.5px", textTransform: "uppercase",
+    marginTop: "2px",
+  },
+  eventDayLabel: {
+    fontFamily: font.body, fontSize: "13px", fontWeight: "700",
+    color: "rgba(255,255,255,0.45)", letterSpacing: "2px", textTransform: "uppercase",
+  },
+  eventTitle: {
+    fontFamily: font.display, fontSize: "20px", fontWeight: "700",
+    color: T.white, margin: "0 0 1rem", lineHeight: 1.3,
+  },
+  eventDivider: {
+    width: "36px", height: "2px", background: T.gold,
+    borderRadius: "1px", marginBottom: "1rem",
+  },
+  eventDesc: {
+    fontFamily: font.body, fontSize: "14.5px", color: "rgba(255,255,255,0.62)",
+    lineHeight: "1.75", margin: "0", flex: 1,
+  },
+  eventFooter: {
+    marginTop: "1.5rem", paddingTop: "1rem",
+    borderTop: "1px solid rgba(200,146,42,0.15)",
+  },
+  eventRsvp: {
+    fontFamily: font.body, fontSize: "12px", fontWeight: "700",
+    color: T.goldLight, letterSpacing: "1.5px", textTransform: "uppercase",
+    cursor: "pointer",
+  },
 
   // Hero
   heroWrap: { position: "relative", width: "100%", height: "100vh", minHeight: "500px", overflow: "hidden" },
